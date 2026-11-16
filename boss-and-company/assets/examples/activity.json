@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-16T00:00:00Z",
+  "enabled": true,
+  "source": "boss-passport",
+  "items": [
+    {
+      "date": "2026-11-15",
+      "project": "example-user/example-project",
+      "title": "虚构示例：公开项目进展示意",
+      "stage": "in-progress",
+      "url": "https://github.com/example-user/example-project"
+    }
+  ]
+}
