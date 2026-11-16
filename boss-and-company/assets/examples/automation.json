@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "automation_version": 1,
+  "auto_refresh": true,
+  "auto_record": false,
+  "sync_after_record": false,
+  "activity_public": false,
+  "note": "虚构示例。真实文件保存在 private Boss 档案的 automation.json，所有 Harness 读取同一份；写入类开关默认关闭。",
+  "updated_at": "2026-11-16T00:00:00Z"
+}
