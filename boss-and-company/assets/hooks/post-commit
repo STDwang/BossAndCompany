@@ -1,0 +1,28 @@
+#!/bin/sh
+# BossAndCompany post-commit hook template (all data here is fictional).
+#
+# Install: copy this file to <project>/.git/hooks/post-commit and make it
+# executable, or source it from an existing post-commit hook. If the project
+# already has a post-commit hook, append the last python line instead of
+# replacing it.
+#
+# Harmless when auto_record is off: auto.py reports "disabled" and writes
+# nothing. Failures never block the commit.
+#
+# Optional environment variables:
+#   BOSS_AND_COMPANY_SCRIPTS  absolute path to the installed skill scripts/
+#   BOSS_AND_COMPANY_HARNESS  harness name recorded on the event (e.g. codex)
+#   PYTHON_BIN                python executable (default: python)
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+PYTHON_BIN="${PYTHON_BIN:-python}"
+SKILL_SCRIPTS="${BOSS_AND_COMPANY_SCRIPTS:-$PROJECT_ROOT/.codebuddy/skills/boss-and-company/scripts}"
+
+if [ ! -f "$SKILL_SCRIPTS/auto.py" ]; then
+  exit 0
+fi
+
+"$PYTHON_BIN" "$SKILL_SCRIPTS/auto.py" post-commit \
+  --project "$PROJECT_ROOT" \
+  --harness "${BOSS_AND_COMPANY_HARNESS:-unknown}" 2>/dev/null || true
+exit 0
