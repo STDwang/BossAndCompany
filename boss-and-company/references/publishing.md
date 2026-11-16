@@ -6,6 +6,8 @@
 
 `scripts/render.py` 使用内置网站/主页/项目 README 模板，输出 public 和 private 分离的目录；company scaffold 将 public 安排到独立网站 repo/site，主页及其资源放 profile repo。模板用深墨蓝、纸白、薄荷绿和排版 SVG；SVG 是封面，不是实机截图。真实图文 README 优先使用项目已允许公开的截图，缺少时明确待补，不冒充实机效果。用户已有优秀视觉时优先复用。
 
+后期"最近在忙…"可视化模块**只能消费** `scripts/activity.py` 生成的 `activity.json`（格式见 assets/examples/activity.json），不能让网站直接读取 private 公司空间、事件正文或 Boss 档案。该投影默认关闭：需 `activity_public` 开启、事件显式 `visibility: public` 且项目为 public/verified 才会生成条目；输出字段严格限制为 date / project / title / stage / url，并做白名单自检。生成脚本必须显式 `--output`，**不自动写入网站仓库、不改现有页面、不自动部署**；把投影文件同步到网站是用户后续明确授权的另一个动作。详见 [主动性开关](automation.md)。
+
 新静态网站默认 GitHub Pages：候选模板 `.github/workflows/pages.yml` 只上传 site/，不上传仓库根目录。写入默认分支后，按账号权限启用 Pages 的 GitHub Actions 来源，核对 environment 和 pages/id-token 权限，等待部署成功并打开服务器返回的 URL。配置 Pages 需要管理权限，连接器无能力时用已登录 gh 的相应 API；缺权限报告待办，不绕过。实际默认分支非 main 时适配 workflow，不能照搬。
 
 已公开的源码要保持用户原本选择；新项目私有不影响将已允许展示的介绍/图片发布到网站。构建产物、源代码、源码许可与展示授权分别核实。不要自动把私有源码迁到网站仓库。
