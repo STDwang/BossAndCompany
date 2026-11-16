@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "owner": "example-user",
+  "facts": [
+    {"id":"display-name","label":"称呼","value":"示例开发者","visibility":"public","status":"user-stated","sources":[{"ref":"user-provided-resume:p1","date":"2026-11-15"}]},
+    {"id":"headline","label":"职业方向","value":"C++ 工程与 AI 协作工具开发","visibility":"public","status":"user-stated","sources":[{"ref":"user-statement","date":"2026-11-15"}]},
+    {"id":"contact","label":"私人联系信息","value":"仅用于演示的私密内容","visibility":"private","status":"user-stated","sources":[{"ref":"example-only","date":"2026-11-15"}]}
+  ],
+  "projects": [
+    {"slug":"example-tool","title":"Example Tool","repository":"example-user/example-tool","summary":"将重复工作整理为可复用的工具。","contribution":"需求拆解、实现审查与验证","state":"原型","status":"verified","tech":["Python","AI"],"visibility":"public","source_visibility":"private","sources":[{"ref":"example-only","date":"2026-11-15"}]}
+  ]
+}
