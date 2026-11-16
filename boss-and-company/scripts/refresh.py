@@ -55,7 +55,9 @@ def read_optional(runner, repository, path, branch):
 def list_directory(runner, repository, path, branch):
     endpoint = f"repos/{repository}/contents/{quote(path, safe='/.-_')}"
     try:
-        data = sync.gh_json(runner, [endpoint, "-f", f"ref={branch}"])
+        # `gh api -f` implies POST unless the method is explicit; directory
+        # listings must be GET or GitHub returns 404/405 and looks "empty".
+        data = sync.gh_json(runner, ["-X", "GET", endpoint, "-f", f"ref={branch}"])
     except sync.SyncError:
         return []
     if not isinstance(data, list):
