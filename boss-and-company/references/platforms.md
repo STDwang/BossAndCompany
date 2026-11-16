@@ -13,7 +13,9 @@
 
 `company.py bind` 写仓库级确定性入口、公开协调信息和每个 checkout 独立的 gitignored 私有映射；只有显式 `--install-skills` 才安装技能。必须分别验证“技能已可加载”和“项目规则已存在”。WorkBuddy 官方文档支持 `.codebuddy/skills`，部分运行环境也使用 `.workbuddy/skills`；接手时探测实际客户端约定，不假定两种路径都会同时生效。新项目不保证继承根目录规则：在当前任务明确创建新项目时，主动安装/引用 skill、bind 并登记；后续显式调用时核对遗漏项目。
 
-同一个 `owner/repo` 可以同时被多个 Harness 检出。每个 checkout 单独执行 `bind` 和 `workspace`，但生成的项目级 `company.json` 与规则区块必须一致；`workspace_id`、绝对路径、outbox、receipts 只属于本地 checkout。不同 `skill_version` 绑定到同一项目时先解决版本冲突，不静默覆盖已有技能副本。事件中的 `harness` 记录实际执行宿主；同一目录由多个 Harness 共用时也各自生成独立事件 ID。唯一状态快照仍由协调者按远端 SHA 合并。
+同一个 `owner/repo` 可以同时被多个 Harness 检出。每个 checkout 单独执行 `bind` 和 `workspace`，但生成的项目级 `company.json` 与规则区块必须一致；`workspace_id`、绝对路径、outbox、receipts、cache 只属于本地 checkout。不同 `skill_version` 绑定到同一项目时先解决版本冲突，不静默覆盖已有技能副本。事件中的 `harness` 记录实际执行宿主；同一目录由多个 Harness 共用时也各自生成独立事件 ID。唯一状态快照仍由协调者按远端 SHA 合并。
+
+自动化触发按宿主能力分层：有 SessionStart hook 的宿主注册 `auto.py session-start`；所有有 git 的项目可注册 `assets/hooks/post-commit`；无 hook 的宿主依赖 skill 被加载时按项目规则执行同一命令。**各宿主配置文件名与结构不同，本 skill 只提供统一命令和模板，不擅自改写宿主配置**；没有工具的环境只输出待执行清单。无论哪种触发，生效开关都来自 private Boss 档案的同一份 `automation.json`，本地 `local.json` 只能降权，因此不会出现某个 Harness 给自己开写入权限。缓存与回执都是各 checkout 私有的，远端公司空间仍只追加不可变文件。详见 [hooks 说明](../assets/hooks/README.md) 与 [主动性开关](automation.md)。
 
 DeepSeek 是模型/服务与客户端生态，不假定存在统一 `.deepseek/skills` 标准目录。若通过 Claude Code、WorkBuddy 或其他 agent 使用 DeepSeek，按宿主适配。普通聊天环境缺少本地/远端工具时，以用户提供的文件整理结果和待执行清单，不宣称已创建仓库。工具调用需要应用实际执行并返回结果。
 
