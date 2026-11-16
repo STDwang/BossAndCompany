@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import render
+import classification
 
 SKILL = Path(__file__).resolve().parents[1]
 SKILL_VERSION = 2
@@ -258,6 +259,10 @@ def scaffold(config, profile, output):
             record = {"schema_version": render.SCHEMA_VERSION}
             record.update({k: project[k] for k in ("slug", "title", "repository", "state", "status", "source_visibility")})
             record["source"] = project.get("source")
+            if project.get("classification") is not None:
+                record["classification_version"] = classification.CLASSIFICATION_VERSION
+                record["classification"] = dict(project["classification"])
+                classification.validate_classification(record["classification"])
             write_new(company / f"projects/{project['slug']}/PROJECT.json", encoded(record))
             write_new(company / f"projects/{project['slug']}/STATE.md", f"# {render.md(project['title'])}\n\n当前记录：{render.md(project['state'])}\n\n本文件是 owner/repo 的唯一任务快照；多个 Harness 只允许追加独立事件，由明确协调者使用远端 SHA 合并本文件。验证：尚未由初始化脚本执行；以项目真实验证为准。\n")
         if decisions["profile_readme"] != "keep":
