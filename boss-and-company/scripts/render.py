@@ -7,6 +7,8 @@ from pathlib import Path
 from string import Template
 from urllib.parse import urlsplit
 
+import classification
+
 
 TEMPLATES = Path(__file__).resolve().parents[1] / "assets" / "templates"
 SCHEMA_VERSION = 2
@@ -90,6 +92,8 @@ def validate(data):
                         safe_url(item[link])
                 if item["source_visibility"] == "public" and not item.get("source"):
                     raise ValueError(f"{context}: public source needs URL")
+                if item.get("classification") is not None:
+                    classification.validate_classification(item["classification"])
 
 
 def projection(data):
