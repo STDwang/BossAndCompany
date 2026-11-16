@@ -159,9 +159,16 @@ def sync_workspaces(project, mapping, repository, branch, runner):
     return results
 
 
-def sync(project, runner=default_runner, limit=100):
+def sync(project, runner=default_runner, limit=100, only=None):
+    """Upload pending events; `only` restricts the run to specific event IDs.
+
+    Post-commit recording uses `only` so that enabling automatic sync never
+    unexpectedly uploads unrelated, manually staged pending events.
+    """
     if not 1 <= limit <= 100:
         raise ValueError("limit must be between 1 and 100")
+    if only is not None:
+        only = {company.identifier(item) for item in only}
     project = Path(project).resolve()
     mapping = company.project_mapping(project)
     repository = mapping["repositories"]["company"]
@@ -170,11 +177,13 @@ def sync(project, runner=default_runner, limit=100):
     if not ignores.is_file() or any(entry not in ignores.read_text(encoding="utf-8") for entry in protected):
         raise ValueError("Bind project first to protect private files")
     branch = repository_metadata(runner, repository)
-    workspace_results = sync_workspaces(project, mapping, repository, branch, runner)
+    workspace_results = [] if only is not None else sync_workspaces(project, mapping, repository, branch, runner)
     outbox = company.destination(project, ".boss-and-company/outbox")
     results = []
     for path in sorted(outbox.glob("*.json"))[:limit]:
         event_id = path.stem
+        if only is not None and event_id not in only:
+            continue
         try:
             company.identifier(event_id)
             record = company.read(path)
