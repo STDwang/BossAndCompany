@@ -14,6 +14,7 @@ import company
 import render
 import history_index
 import sync
+import classification
 
 
 def example(name):
@@ -409,6 +410,88 @@ class CompanyTests(unittest.TestCase):
             self.assertTrue(any(path.startswith("events/") for path in runner.files))
             self.assertTrue((workbuddy / f".boss-and-company/receipts/{first['id']}.json").exists())
             self.assertTrue((codex / f".boss-and-company/receipts/{second['id']}.json").exists())
+
+
+class ClassificationTests(unittest.TestCase):
+    def setUp(self):
+        self.valid = example("classification")
+        self.config = example("config")
+        self.profile = example("profile")
+
+    def test_example_is_valid(self):
+        self.assertTrue(classification.validate_classification(self.valid))
+        self.assertEqual(classification.CLASSIFICATION_VERSION, 1)
+
+    def test_rejects_unknown_missing_and_bad_values(self):
+        for mutate in (
+            lambda d: d.pop("stars"),
+            lambda d: d.update(extra="x"),
+            lambda d: d.update(showcase="unknown"),
+            lambda d: d.update(activity_tier="hot"),
+            lambda d: d.update(stars=-1),
+            lambda d: d.update(stars=True),
+            lambda d: d.update(data_source="guess"),
+            lambda d: d.update(reviewed_at="16-11-2026"),
+            lambda d: d.update(pushed_at="2026-11-16"),
+            lambda d: d.update(is_fork="no"),
+            lambda d: d.update(stars=5, visibility="private"),
+        ):
+            record = copy.deepcopy(self.valid)
+            mutate(record)
+            with self.assertRaises(ValueError):
+                classification.validate_classification(record)
+
+    def test_activity_tier_thresholds(self):
+        from datetime import datetime, timezone, timedelta
+        now = datetime(2026, 11, 16, tzinfo=timezone.utc)
+        self.assertEqual(classification.activity_tier_from_pushed_at(
+            (now - timedelta(days=7)).isoformat(), now), "active")
+        self.assertEqual(classification.activity_tier_from_pushed_at(
+            (now - timedelta(days=200)).isoformat(), now), "recent")
+        self.assertEqual(classification.activity_tier_from_pushed_at(
+            (now - timedelta(days=400)).isoformat(), now), "dormant")
+        self.assertEqual(classification.activity_tier_from_pushed_at(None, now), "dormant")
+
+    def test_attach_preserves_unknown_keys_and_replaces_only_valid(self):
+        record = {"slug": "x", "schema_version": 2, "custom": "keep"}
+        attached = classification.attach(record, self.valid)
+        self.assertEqual(attached["custom"], "keep")
+        self.assertEqual(attached["classification_version"], 1)
+        self.assertEqual(attached["classification"], self.valid)
+        self.assertNotIn("classification", record)
+        with self.assertRaises(ValueError):
+            classification.attach(record, {"showcase": "bad"})
+
+    def test_sort_key_is_stars_then_pushed_at(self):
+        def rec(stars, pushed, vis="public"):
+            c = dict(self.valid, stars=stars, pushed_at=pushed, visibility=vis)
+            return {"classification": c}
+        newest = rec(0, "2026-11-16T00:00:00Z")
+        older = rec(0, "2026-01-01T00:00:00Z")
+        starred = rec(1, "2020-01-01T00:00:00Z")
+        nopush = rec(0, None)
+        ordered = sorted([older, nopush, newest, starred], key=classification.sort_key)
+        self.assertEqual(ordered, [starred, newest, older, nopush])
+
+    def test_scaffold_emits_valid_classification_and_profile_validates(self):
+        self.config["decisions"] = {"profile_readme": "keep", "website": "reuse"}
+        self.profile["projects"][0]["classification"] = copy.deepcopy(self.valid)
+        render.validate(self.profile)
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "output"
+            company.scaffold(self.config, self.profile, output)
+            data = json.loads((output / "Company_Workspace/projects/example-tool/PROJECT.json").read_text(encoding="utf-8"))
+            self.assertEqual(data["classification_version"], 1)
+            self.assertEqual(data["classification"], self.valid)
+            self.assertEqual(data["schema_version"], 2)
+            self.assertNotIn("classification", json.loads((output / "Website_Adaptation/public-profile.json").read_text(encoding="utf-8"))["projects"][0])
+
+    def test_bad_profile_classification_is_rejected(self):
+        bad = copy.deepcopy(self.valid)
+        bad["showcase"] = "leak"
+        self.profile["projects"][0]["classification"] = bad
+        with self.assertRaises(ValueError):
+            render.validate(self.profile)
 
 
 if __name__ == "__main__":
