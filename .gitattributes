@@ -1,0 +1,20 @@
+# Normalize line endings to LF in the repository across all platforms.
+* text=auto eol=lf
+
+# Source and data files that must stay byte-identical across checkouts.
+*.py    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.html  text eol=lf
+*.css   text eol=lf
+
+# The post-commit hook is a shell script and needs LF to execute on Unix.
+post-commit text eol=lf
+
+# Binary assets are never normalized.
+*.png binary
+*.jpg binary
+*.svg binary
+*.zip binary
