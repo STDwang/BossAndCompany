@@ -1,0 +1,16 @@
+local/
+local-output/
+private-data/
+__pycache__/
+*.pyc
+.env
+.env.*
+dist/
+
+
+<!-- BossAndCompany:begin -->
+/.boss-and-company/outbox/
+/.boss-and-company/receipts/
+/.boss-and-company/local.json
+<!-- BossAndCompany:end -->
+.workbuddy/
