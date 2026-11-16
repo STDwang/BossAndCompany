@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "owner": "example-user",
+  "repositories": {
+    "boss": "example-user/Boss_Passport",
+    "company": "example-user/Company_Workspace",
+    "profile": "example-user/example-user",
+    "website": "example-user/personal-site"
+  },
+  "decisions": {},
+  "platforms": ["codex", "claude-code", "workbuddy", "deepseek"],
+  "workspace_roots": []
+}
