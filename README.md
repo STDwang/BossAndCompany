@@ -26,6 +26,8 @@ BossAndCompany 是一个跨 AI 平台的 skill。用户首次主动调用后，a
 10. 首次初始化后，规则成为纳入管理项目的默认工作约定；后续项目创建并上传 GitHub 时，也应在公司空间登记和留痕。
 11. 遇到已有内容时，主要询问两个选择：是否覆盖主页 README、是否复用个人网站。保存选择，后续不重复询问。
 12. 支持 Claude Code、Codex、WorkBuddy，以及 DeepSeek 所在的实际 agent/工具环境。
+13. 主动性由用户级开关控制，默认**只读刷新开、所有写入关**：接入 GitHub 后自动读取并同步 Boss 档案与 Company_Workspace 最新信息；代码提交后是否自动维护公司空间记录由用户单独开启。开关跨 Harness 生效，本地只能调得更保守。
+14. 个人网站作为对外品牌长期维护。后期"最近在忙…"可视化模块只消费严格白名单的公开活动投影，不直接读取 private 公司空间或事件正文；网站仓库的现有内容（含已有简历页面与文件）不因本 skill 自动改动。
 
 ## 3. GitHub 公司的结构
 
@@ -33,7 +35,7 @@ BossAndCompany 是一个跨 AI 平台的 skill。用户首次主动调用后，a
 | --- | --- | --- | --- |
 | owner/owner | public | GitHub 主页 README、简介、精选成果和网站入口 | 私密档案、内部评价、凭证 |
 | 个人网站仓库 | public | 介绍、成果卡片、项目详情、允许展示的图片、部署配置 | 未授权公开的经历详情、原始隐私资料 |
-| Boss_Passport | private | 个人信息、经历、协作偏好、近期目标、愿望、约束、资料来源 | 认证密钥、整包客户端配置 |
+| Boss_Passport | private | 个人信息、经历、协作偏好、近期目标、愿望、约束、资料来源、`automation.json` 用户级主动性开关 | 认证密钥、整包客户端配置 |
 | Company_Workspace | private | 公司规则、岗位、项目登记、任务快照、工作事件、交接、初始化选择 | 实际项目代码的第二份副本 |
 | 各实际项目仓库 | 新建 private | 代码、策划案、美术资产、测试、正式决定、项目内协作规则 | 老板私人档案、公司内部日志 |
 
@@ -53,6 +55,7 @@ Company_Workspace/
   projects/<project-slug>/
     PROJECT.json
     STATE.md
+  workspaces/<workspace-id>.json
   events/<event-id>.json
   backups/profile/<date>-<old-file-sha>.md
 ```
@@ -144,6 +147,25 @@ BossAndCompany 将**项目身份**定义为唯一 `owner/repo`，将**工作区�
 
 默认规则依赖宿主加载与工具权限；它不是一个已经运行的后台监控服务，不保证未加载上下文的会话、任意聊天网页或范围外项目自动留痕。
 
+### 7.1 主动性开关与自动同步（v3）
+
+用户要求"接入 GitHub 后自动读取 Boss 与公司空间最新信息、代码提交后按开关维护公司空间"，同时"主动性交给用户设置开关"。实现见 [主动性开关协议](boss-and-company/references/automation.md) 与 [hooks 说明](boss-and-company/assets/hooks/README.md)。
+
+**Skill 仍然不能后台自跑**：触发只能来自宿主 SessionStart hook、git post-commit hook，或 skill 被加载时按项目规则执行 `scripts/auto.py`。触发不等于授权写入。
+
+| 开关 | 默认 | 行为 |
+| --- | --- | --- |
+| `auto_refresh` | `true` | `session-start` 只读拉取 Boss 档案与 Company_Workspace，写入 gitignored `.boss-and-company/cache/`，生成给接手 Agent 先读的 `CONTEXT.md` |
+| `auto_record` | `false` | `post-commit` 把最近一次 commit 记成 private 事件（ID 与 commit 绑定、重放幂等、验证状态 not-run），默认只落本地 outbox |
+| `sync_after_record` | `false` | 提交事件生成后自动上传并回读；`auto_record` 为 false 时强制 false，且只同步本次事件 |
+| `activity_public` | `false` | 允许生成供网站消费的公开活动投影 |
+
+- 权威开关在 private `Boss_Passport/automation.json`，**所有 Harness 读同一份**；每个 checkout 的 gitignored `local.json` 里 `automation_override` **只能把 true 降为 false**，试图提权会被记录并忽略。远端文件缺失时回退内置默认值，绝不回退成全开。
+- 刷新缓存带 `boss_sha` / `company_sha` 和 `stale` 标记；失败保留旧缓存、返回原因、不阻断会话、不伪称同步。缓存目录由 bind 写进 .gitignore，`cache_guard` 二次校验。
+- 提交事件只含元数据（SHA、时间、主题首行、分支），**不含 diff、代码、作者邮箱、本地路径**；公司仓库写入前核验 private，回读一致才标 synced。
+- "最近在忙"投影需 `activity_public` 开启 + 事件显式 `visibility: public` + 项目 public/verified，输出字段严格限定 `date/project/title/stage/url` 并做自检。**必须显式 `--output`，脚本绝不自动写网站仓库或改现有页面**；把投影同步到网站是用户后续另行授权的动作。
+- 版本区分：`SKILL.md` 包版本为 `3`；绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（格式未变，已绑定项目无需重新 bind）；开关文件另有 `automation_version: 1`。
+
 ## 8. 跨平台兼容目标与安装
 
 安装单元是 `boss-and-company/` 整目录，包含 SKILL.md、references、assets 和 scripts，不是只复制一个 Markdown 文件。
@@ -175,17 +197,23 @@ BossAndCompany/
     agents/openai.yaml              Codex 展示元数据
     references/
       initialization.md             初始化、两问与恢复
-      passport.md                   档案和简历导入
+      passport.md                   档案、简历导入与用户级开关
       platforms.md                  平台适配及能力边界
       publishing.md                 公开展示与部署
       work-protocol.md              岗位和留痕协议
-    assets/examples/                虚构配置、盘点、档案、事件
+      automation.md                 主动性开关、自动同步与公开活动投影
+    assets/examples/                虚构配置、盘点、档案、事件、开关、活动投影
+    assets/hooks/                   git post-commit 模板与宿主注册说明
     assets/templates/               主页、项目 README、网站、Pages 工作流
     scripts/
       company.py                    本地规划、生成、绑定、事件与回执
       render.py                     私密/公开分离的展示生成
       history_index.py              Codex 历史索引筛选
       sync.py                       已登录 gh 的事件上传与远端回读
+      automation.py                 用户级开关解析与本地降权
+      refresh.py                    只读刷新并生成私有接手上下文
+      activity.py                   严格白名单的公开活动投影
+      auto.py                       session-start / post-commit / activity / status 统一入口
   tests/test_company.py             本地行为、模拟同步与 CLI 流程测试
   scripts/check_package.py          无额外依赖的包结构检查
   scripts/package_skill.py          仅打包技能目录
@@ -205,6 +233,10 @@ BossAndCompany/
 | sync | 通过已登录 gh 核验 private、上传工作区登记与独立事件、回读一致后写回执；冲突和失败逐项报告 | 已同步项目登记、已部署网站或已通过真实账号验收 |
 | render | 仅投影显式公开且非推测/争议的 facts/projects，生成公开展示 | 自主理解简历或核实事实 |
 | history_index | 按标题找 Codex 会话元数据及可找到的路径，不读取正文 | 自动读取四个平台全部历史 |
+| automation | 解析 private Boss 档案的用户级开关，本地只能降权 | 自行替用户打开写入权限 |
+| refresh | 只读拉取 Boss/公司空间最新状态，生成 gitignored 私有缓存与 CONTEXT.md | 已写远端、后台常驻监控或实时订阅 |
+| activity | 按开关生成白名单公开投影并自检 | 自动改网站仓库、部署页面或公开事件正文 |
+| auto | 会话开始/提交后/投影/状态四个动作的统一入口，失败不阻断宿主 | 未经宿主触发就能自行运行 |
 
 GitHub 仓库创建、项目登记、文档语义解析、既有网站适配和部署验收，目前仍由宿主 agent 结合可用工具及 references 执行。没有独立的同步守护进程、自动调度器、通用 PDF/OCR 引擎或四个平台的统一登录系统。
 
@@ -221,6 +253,10 @@ python boss-and-company/scripts/company.py event --project project-directory --r
 python boss-and-company/scripts/sync.py --project project-directory
 python boss-and-company/scripts/company.py acknowledge --project project-directory --id event-id --remote-url https://github.com/owner/Company_Workspace/blob/main/events/event-id.json
 python boss-and-company/scripts/history_index.py --root codex-home --query 简历 求职 交接 --limit 20
+python boss-and-company/scripts/auto.py status --project project-directory
+python boss-and-company/scripts/auto.py session-start --project project-directory --harness workbuddy
+python boss-and-company/scripts/auto.py post-commit --project project-directory --harness workbuddy
+python boss-and-company/scripts/auto.py activity --project project-directory --profile profile.json --output activity.json
 ```
 
 `event --record` 的记录若省略 `id`、`workspace_id`、`harness` 或 `recorded_at`，命令会按当前 checkout 生成合法的全局唯一 ID、工作区身份和时间；显式 ID 必须以当前 `workspace_id` 为前缀。`sync.py` 要求本机已有已登录且有目标 private 仓库权限的 `gh`，不会保存凭证或打印 gh 的错误输出；它同步工作区登记与事件，不替用户创建仓库或部署网站。`acknowledge` 保留给宿主 agent 在自行完成并确认远端回读后登记。
@@ -237,7 +273,7 @@ python -B scripts/package_skill.py --output dist/boss-and-company.zip
 
 打包脚本不覆盖已有 ZIP；重建时先检查并移走旧产物，或指定新的输出文件名。不要删除源码以解决打包冲突。
 
-截至本轮开发交付，23 项本地测试通过，覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测及 CLI 流程。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 2` 与 `agent_created: true`。这些仍不代表四个真实客户端或真实 GitHub 已完成端到端验收。没有实际证据时，不宣称用户的公司仓库已经初始化或网站已经部署。
+截至本轮开发交付，本地测试覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测、CLI 流程，以及新增的开关默认/降权、只读刷新与 stale 降级、提交事件幂等、公开投影白名单自检。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 3` 与 `agent_created: true`，绑定数据 `skill_version` 仍为 `2`。这些仍不代表四个真实客户端的 hook 已完成端到端验收。没有实际证据时，不宣称后台自动同步已在所有宿主流行或网站模块已经上线。
 
 ## 11. 接手 AI 的下一步与验收标准
 
