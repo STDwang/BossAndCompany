@@ -1,0 +1,4 @@
+interface:
+  display_name: "BossAndCompany"
+  short_description: "将 GitHub 组织为个人公司，管理老板档案、岗位协作、项目留痕和网站展示"
+  default_prompt: "使用 $boss-and-company，对我的 GitHub 初始化个人公司，复用已有成果并设置后续项目的默认留痕规则。"
