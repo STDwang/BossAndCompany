@@ -11,6 +11,7 @@ dist/
 <!-- BossAndCompany:begin -->
 /.boss-and-company/outbox/
 /.boss-and-company/receipts/
+/.boss-and-company/cache/
 /.boss-and-company/local.json
 <!-- BossAndCompany:end -->
 .workbuddy/
