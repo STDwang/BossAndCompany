@@ -95,6 +95,8 @@ class FakeRemote:
             self.puts.append(path)
             self.put_count += 1
             return completed(command, "{}")
+        if "-X" not in command or "GET" not in command:
+            raise AssertionError("Directory listing must be an explicit GET (gh -f implies POST)")
         listing = self.directories.get((repository, path), [])
         return completed(command, json.dumps(listing))
 
