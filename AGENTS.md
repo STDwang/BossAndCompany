@@ -8,5 +8,7 @@
 事件必须带 workspace_id 与 harness，ID 以 workspace_id 为前缀；不同 Harness 分别追加独立事件，由明确协调者使用远端 SHA 维护唯一任务快照。
 运行 `company.py workspace --project <目录>` 生成本 checkout 的不可变登记，再由 `sync.py` 上传到 private 公司空间 workspaces/。
 关键决定、交接、阻塞及阶段完成时追加独立事件；实际代码、设计与正式决定留在项目。事件先写 outbox/，同步回读一致后再写回执；离线或权限不足时保留 pending。
+主动性由 private Boss 档案的 automation.json 决定，所有 Harness 读同一份；local.json 的 automation_override 只能把开关调得更保守。会话开始先运行 `auto.py session-start --project <目录>` 读取公司空间与 Boss 的最新私有缓存；提交后按 auto_record 开关运行 `auto.py post-commit`。刷新失败保留旧缓存并标 stale，不阻断工作、不伪称已同步。
+供网站消费的公开活动投影只在 activity_public 开启且事件显式标记 public 时生成，输出仅含白名单字段；私有档案、事件正文与本地路径永不上云到公开位置。
 不要伪造验证、人类验收或其他 AI 的工作；用户最新指令及宿主权限优先。DeepSeek 等环境按实际宿主加载技能和工具；无工具时仅整理上下文与待办。
 <!-- BossAndCompany:end -->
