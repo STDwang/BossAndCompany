@@ -12,6 +12,8 @@
 
 默认入口只在初始化选择的工作范围内写入。没有技能加载支持的 DeepSeek/其他聊天客户端需要显式提供上下文，不承诺自动执行。
 
+自动化：会话开始按 [主动性开关](automation.md) 运行 `auto.py session-start`，只读刷新 Boss 与公司空间最新状态到 gitignored `cache/`，生成给接手 Agent 先读的 `CONTEXT.md`；缓存带远端 SHA，失败保留旧缓存并标 stale，不阻断工作也不伪称同步。提交后按 `auto_record` 由 `auto.py post-commit` 生成一条 private 事件，ID 与 commit 绑定、重放幂等、只含元数据且验证状态为 not-run；默认只落本地 outbox，需 `sync_after_record` 才上传并回读，且只同步本次事件。开关以 private Boss 档案的 `automation.json` 为准，本地 `local.json` 的 `automation_override` 只能降权。自动记录不能替代关键决定、交接与验收的人工事件，也不能修改唯一 `STATE.md`。供网站消费的 `activity.json` 只在 `activity_public` 开启且事件显式 public 时生成，输出严格白名单；事件正文、私有仓库与本地路径永不出云到公开位置。
+
 离线：`company.py event` 先保存 `.boss-and-company/outbox/<id>.json`，`company.py workspace` 先保存 `.boss-and-company/outbox/workspaces/<workspace_id>.json`。outbox、receipts 和 local.json 都属于当前 checkout，均通过 .gitignore 排除，不能随公开项目上传。联网后优先执行 `sync.py --project <目录>`：脚本通过已登录 gh 核验 Company_Workspace 仍 private、读取默认分支、按独立文件写入 workspaces/ 与 events/、再次读取并逐字节比对，成功后才为事件调用 acknowledge 写远端 URL；不删除本地事件。同 id 已存在且内容一致直接回执，不重复写入；内容不同停止并修复标识。仅有网络请求发出不算同步成功；脚本返回 conflict/failed 时相关记录仍为 pending。项目登记和网站部署由宿主 agent 另行完成。
 
 如果初始化尚未登记该项目，先把 `projects/<slug>/PROJECT.json` 写入公司空间，再同步工作区登记和事件。若登记失败则相关记录保持 pending，最终报告具体阻塞。正式需求/决定必须写回项目文档，事件引用该文件，避免用日志替代规格。
