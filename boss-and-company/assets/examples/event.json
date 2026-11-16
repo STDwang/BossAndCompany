@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ws-example0001-20261115-example-001",
+  "workspace_id": "ws-example0001",
+  "harness": "codex",
+  "recorded_at": "2026-11-15T12:00:00+08:00",
+  "task_id": "example-task",
+  "project": "example-user/example-tool",
+  "role": "Coder_Position",
+  "actor": "Example agent / model unknown",
+  "kind": "handoff",
+  "summary": "完成原型，等待设计接入。",
+  "artifacts": [],
+  "verification": {"status":"not-run","detail":"示例记录，没有运行真实测试。"},
+  "next": "核对设计规格后继续。"
+}
