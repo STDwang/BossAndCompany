@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "repositories": [
+    {"full_name":"example-user/example-user","visibility":"public","profile_readme_exists":true},
+    {"full_name":"example-user/personal-site","visibility":"public","website_exists":true}
+  ],
+  "projects": [{"full_name":"example-user/example-tool","visibility":"private"}]
+}
