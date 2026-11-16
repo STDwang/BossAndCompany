@@ -8,6 +8,7 @@
 6. 网站/主页按两问结果更新，详情见 publishing.md。同步私密资料和公司结构前再次核实可见性；新增库明确 private/public。不要把生成目录顶层整体 push 到某个公开仓库。
 7. 为每个纳入管理的本地 checkout 执行 `company.py bind --project <目录> --config <配置> --repo <owner/repo> --install-skills`；同一仓库的不同 checkout 使用相同 `owner/repo`，不重复登记项目。可提交的 `company.json` 是各 checkout 必须逐字节一致的确定性文件；`workspace_id`、本地路径和 private 仓库名只留在 gitignored 的 `local.json`。目录移动后用 `--workspace-id` 沿用身份。随后执行 `company.py workspace --project <目录>` 生成不可变工作区登记。各本地 checkout 的 outbox/receipts/local.json 独立，不共享。
 8. 完成真实部署与回读验证；工作区登记和事件在已登录 gh 可用时执行 `sync.py --project <目录>`，由脚本核验 private、逐文件上传并回读一致后写回执。输出各仓库和网站链接，以及每个工作区/事件的 synced/already-synced/conflict/failed 状态。重跑读取现有配置，补齐缺失步骤，检查私密与公开可见性没有漂移。不要重复发起两问。项目登记和网站部署仍须按 publishing.md 单独核实。
+9. 在 private Boss 档案写入 `automation.json`（`automation_version: 1`，格式见 assets/examples/automation.json），按用户选择设置 `auto_refresh` / `auto_record` / `sync_after_record` / `activity_public`。当前默认只读开、写入全关。写入前核实目标仓库 private；该文件是用户级、跨 Harness 的唯一权威开关，不在各 checkout 复制副本。随后 `auto.py status --project <目录>` 核对生效值，`auto.py session-start` 生成首个私有缓存。宿主 hook 与 git post-commit 只注册命令，不擅自改写宿主配置；注册本身不等于允许写入。
 
 工具示例：优先当前平台 GitHub 连接器。需要创建仓库且连接器不支持时，在已认证 gh 中执行 `gh repo create owner/Boss_Passport --private` 等明确可见性的命令；当前官方命令有变时查看 gh help。只读盘点与上传写入分开，失败不要泄露 token。
 
