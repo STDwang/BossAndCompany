@@ -1,0 +1,14 @@
+{
+  "multi_workspace": true,
+  "owner": "STDwang",
+  "platforms": [
+    "codex",
+    "claude-code",
+    "workbuddy",
+    "deepseek"
+  ],
+  "project": "STDwang/BossAndCompany",
+  "schema_version": 2,
+  "skill_version": 2,
+  "workspace_registry": "private-company-space/workspaces"
+}
