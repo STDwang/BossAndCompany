@@ -10,4 +10,6 @@
 
 项目是唯一登记表，包含 slug/title/repository/summary/contribution/state/status/tech、visibility（是否公开展示）、source_visibility（源码是否公开）、source/demo 可选链接、sources。status 与 facts 相同，只有 user-stated/verified 且显式 public 的项目进入公开投影。公开展示与源码可见性独立；仅仅已经有 GitHub 仓库不自动表示允许对外介绍项目。
 
-Boss_Passport 推荐 SUMMARY.md（快速上下文）、profile.json（规范化资料）、PROFILE.md（阅读版）。详细敏感资料按需要加载；Coder 不必阅读整份私人历史才能修一个 bug。来源引用保存在 private 中，公开文件只保留必要摘要。
+Boss_Passport 推荐 SUMMARY.md（快速上下文）、profile.json（规范化资料）、PROFILE.md（阅读版），另加 `automation.json`：用户级主动性开关（`automation_version: 1`，`schema_version: 2`）。它必须保存在本 private 仓库，所有 Harness 读取同一份；`auto_refresh` 默认 true，`auto_record` / `sync_after_record` / `activity_public` 默认 false。格式见 assets/examples/automation.json，规则见 [主动性开关](automation.md)。本地 checkout 的 `automation_override` 只能把开关调得更保守，不能覆盖用户关掉的写入权限；开关文件本身不进入任何公开投影。
+
+详细敏感资料按需要加载；Coder 不必阅读整份私人历史才能修一个 bug。来源引用保存在 private 中，公开文件只保留必要摘要。PDF/DOCX 原件不因建立档案而自动上云或公开。
