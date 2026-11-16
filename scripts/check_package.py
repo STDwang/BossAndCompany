@@ -13,7 +13,7 @@ metadata = dict(line.split(": ", 1) for line in match[1].splitlines() if ": " in
 assert metadata.get("name") == skill.name, "Invalid skill frontmatter/name"
 # Skill package version is independent of the bound-data skill_version (still 2):
 # company.json / local.json did not change, so existing checkouts need no rebind.
-assert metadata.get("version") == "3", "Missing skill version"
+assert metadata.get("version") == "4", "Missing skill version"
 assert metadata.get("agent_created") == "true", "Missing agent_created flag"
 assert len(metadata.get("description", "")) <= 1024, "Description too long"
 for path in [skill / "SKILL.md", *(skill / "references").glob("*.md")]:
@@ -22,7 +22,7 @@ for path in [skill / "SKILL.md", *(skill / "references").glob("*.md")]:
             assert (path.parent / link).is_file(), f"Missing reference in {path.name}"
 interface = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
 assert '$boss-and-company' in interface
-for required in ("sync.py", "automation.py", "refresh.py", "activity.py", "auto.py"):
+for required in ("sync.py", "automation.py", "refresh.py", "activity.py", "auto.py", "classification.py"):
     assert (skill / "scripts" / required).is_file(), f"Required script missing: {required}"
 assert (skill / "references/automation.md").is_file(), "Automation reference is required"
 assert (skill / "assets/hooks/README.md").is_file(), "Hook registration guide is required"
@@ -31,6 +31,10 @@ for path in (skill / "scripts").glob("*.py"):
     ast.parse(path.read_text(encoding="utf-8"))
 for path in (skill / "assets/examples").glob("*.json"):
     data = json.loads(path.read_text(encoding="utf-8"))
+    if path.stem == "classification":
+        assert set(data) == {"showcase", "is_fork", "activity_tier", "stars", "pushed_at", "visibility", "reviewed_at", "data_source"}, "Classification example fields"
+        assert data["showcase"] == "public-source" and data["data_source"] == "gh-api-readonly"
+        continue
     assert data.get("schema_version") == 2, "Examples require schema_version"
     if "owner" in data:
         assert data["owner"] == "example-user", "Examples must remain fictional"
