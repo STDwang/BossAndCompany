@@ -1,18 +1,18 @@
 ---
 name: boss-and-company
 description: 将用户的 GitHub 初始化为个人公司，整理老板档案、公司空间与岗位，创建并部署个人网站，复用主页及项目，为后续项目写入默认协作和留痕规则。接入 GitHub 后按用户开关自动同步 Boss 与公司空间最新状态，提交后按开关维护公司空间记录，并生成严格公开的“最近在忙”数据。适用于“对我的 GitHub 使用 BossAndCompany”、公司初始化、项目登记、汇报、多 Harness 共处、自动化开关和跨 AI 交接。
-version: 4
+version: 5
 agent_created: true
 ---
 
 # BossAndCompany
 
-支持 Codex、Claude Code、WorkBuddy 和有适当工具的 DeepSeek 宿主。共用资料、流程和事件格式，按宿主加载规则。先读 [平台适配](references/platforms.md) 中当前环境对应部分；没有终端/文件/GitHub 工具时输出可交接材料和能力缺口，不假装执行远端操作。
+支持 Codex、Claude Code、WorkBuddy 和有适当工具的 DeepSeek 宿主。共用资料、流程和事件格式，按宿主加载规则。先读 [平台适配](references/platforms.md) 中当前环境对应部分；术语含义以 [术语契约](references/glossary.md) 为准；没有终端/文件/GitHub 工具时输出可交接材料和能力缺口，不假装执行远端操作。
 
 ## 模式
 
 - 用户首次说“对我的 GitHub 使用这个 skill”：读取 [初始化流程](references/initialization.md)，完成已有仓库检查、资料归档、主页和网站发布、项目规则绑定。
-- 已初始化项目工作：先按 [主动性开关](references/automation.md) 运行 `auto.py session-start` 读取最新私有缓存与 `CONTEXT.md`，再读取项目规则与 `.boss-and-company/company.json`，按 [留痕协议](references/work-protocol.md) 登记、交接、汇报和补传。
+- 已初始化项目工作：先按 [主动性开关](references/automation.md) 运行 `auto.py session-start` 读取最新私有缓存与 `CONTEXT.md`，再读取项目规则与 `.boss-and-company/company.json`，按 [留痕协议](references/work-protocol.md) 登记、交接、汇报和补传；交接与接手按其中的「交接与接手」章节及 [术语契约](references/glossary.md) 执行，不必重读全部日志。
 - 更新主动性开关 / 配置自动同步：读取 [主动性开关](references/automation.md) 与 [hooks 说明](assets/hooks/README.md)；开关放在 private Boss 档案，任何写入都需用户明确开启。
 - 更新老板信息/导入简历：读取 [资料规则](references/passport.md)，保留来源并合并事实；没有独立简历仓库。
 - 更新展示/部署网站：读取 [展示与部署](references/publishing.md)，优先复用现有工程、设计和托管。"最近在忙"只消费 `activity.json` 白名单投影，不直接读取 private 公司空间。
@@ -50,7 +50,7 @@ agent_created: true
 - 会话开始：只读刷新到 gitignored `.boss-and-company/cache/`，生成给接手 Agent 先读的 `CONTEXT.md`；缓存带远端 SHA，失败保留旧缓存并标 `stale`，**不写远端、不阻断会话、不伪称已同步**。
 - 提交后：按开关把最近一次 commit 记成 private 事件（ID 与 commit 绑定，重放幂等；只含元数据，验证状态明确 `not-run`）；默认只落本地 outbox，需 `sync_after_record` 才上传并远端回读，且只同步本次事件。
 - "最近在忙"投影：只有 `activity_public` 开启、事件显式 `visibility: public` 且项目在规范化档案中为 public/verified 时才生成；输出严格白名单字段并做自检。**脚本必须显式 `--output`，绝不自动写网站仓库或改现有页面。**
-- 版本说明：本 skill 包为 `version: 4`；仓库绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（基础格式未变，已绑定项目无需重新 bind）。`automation_version: 1` 只管开关文件；`classification_version: 1` 只管 `PROJECT.json` 里可选的项目分类对象。
+- 版本说明：本 skill 包为 `version: 5`（新增 [术语契约](references/glossary.md) 与交接/读历史纪律，基础格式未变）；仓库绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（基础格式未变，已绑定项目无需重新 bind）。`automation_version: 1` 只管开关文件；`classification_version: 1` 只管 `PROJECT.json` 里可选的项目分类对象。
 - 项目分类（v4 新增）：协调者可经只读 GitHub 元数据为 `PROJECT.json` 追加可选的 `classification` 对象，字段由 `scripts/classification.py` 定义并校验，含网站展示形态（`public-source`/`source-private`/`none`）、是否 fork、活跃度分层、星数与最近推送时间。分类是独立可选层，基础 `schema_version` 不变；公开投影仍只输出原本的白名单字段，分类信息只留在 private 公司空间。主页 public 项目排序规则：星数降序、同星数按最近推送时间降序。
 
 ## 首次初始化主要两问

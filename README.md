@@ -51,7 +51,7 @@ AI 会话是短暂的，项目上下文总会丢失。BossAndCompany 把分散�
 ```text
 boss-and-company/        <- 可安装的 skill 本体
   SKILL.md               <- Agent 执行入口
-  references/            <- 初始化 / 档案 / 平台 / 展示 / 留痕 / 自动化协议
+  references/            <- 初始化 / 档案 / 平台 / 展示 / 留痕 / 交接 / 术语契约 / 自动化协议
   assets/examples/       <- 全部为虚构示例数据
   assets/templates/      <- 主页 / 项目 README / 网站模板
   assets/hooks/          <- 可选的 SessionStart / post-commit 钩子

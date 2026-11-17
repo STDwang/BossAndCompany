@@ -164,7 +164,7 @@ BossAndCompany 将**项目身份**定义为唯一 `owner/repo`，将**工作区�
 - 刷新缓存带 `boss_sha` / `company_sha` 和 `stale` 标记；失败保留旧缓存、返回原因、不阻断会话、不伪称同步。缓存目录由 bind 写进 .gitignore，`cache_guard` 二次校验。
 - 提交事件只含元数据（SHA、时间、主题首行、分支），**不含 diff、代码、作者邮箱、本地路径**；公司仓库写入前核验 private，回读一致才标 synced。
 - "最近在忙"投影需 `activity_public` 开启 + 事件显式 `visibility: public` + 项目 public/verified，输出字段严格限定 `date/project/title/stage/url` 并做自检。**必须显式 `--output`，脚本绝不自动写网站仓库或改现有页面**；把投影同步到网站是用户后续另行授权的动作。
-- 版本区分：`SKILL.md` 包版本为 `3`；绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（格式未变，已绑定项目无需重新 bind）；开关文件另有 `automation_version: 1`。
+- 版本区分：`SKILL.md` 包版本为 `5`（新增术语契约与交接/读历史纪律，基础格式未变）；绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（格式未变，已绑定项目无需重新 bind）；开关文件另有 `automation_version: 1`。
 
 ## 8. 跨平台兼容目标与安装
 
@@ -200,7 +200,8 @@ BossAndCompany/
       passport.md                   档案、简历导入与用户级开关
       platforms.md                  平台适配及能力边界
       publishing.md                 公开展示与部署
-      work-protocol.md              岗位和留痕协议
+      work-protocol.md              岗位、留痕与交接/读历史纪律
+      glossary.md                   术语契约：核心定义与反模式
       automation.md                 主动性开关、自动同步与公开活动投影
     assets/examples/                虚构配置、盘点、档案、事件、开关、活动投影
     assets/hooks/                   git post-commit 模板与宿主注册说明
@@ -273,7 +274,7 @@ python -B scripts/package_skill.py --output dist/boss-and-company.zip
 
 打包脚本不覆盖已有 ZIP；重建时先检查并移走旧产物，或指定新的输出文件名。不要删除源码以解决打包冲突。
 
-截至本轮开发交付，本地测试覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测、CLI 流程，以及新增的开关默认/降权、只读刷新与 stale 降级、提交事件幂等、公开投影白名单自检。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 3` 与 `agent_created: true`，绑定数据 `skill_version` 仍为 `2`。这些仍不代表四个真实客户端的 hook 已完成端到端验收。没有实际证据时，不宣称后台自动同步已在所有宿主流行或网站模块已经上线。
+截至本轮开发交付，本地测试覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测、CLI 流程，以及新增的开关默认/降权、只读刷新与 stale 降级、提交事件幂等、公开投影白名单自检。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 5` 与 `agent_created: true`，绑定数据 `skill_version` 仍为 `2`。这些仍不代表四个真实客户端的 hook 已完成端到端验收。没有实际证据时，不宣称后台自动同步已在所有宿主流行或网站模块已经上线。
 
 ## 11. 接手 AI 的下一步与验收标准
 
