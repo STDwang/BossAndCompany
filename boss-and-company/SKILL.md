@@ -1,28 +1,30 @@
 ---
 name: boss-and-company
-description: 把 GitHub 和个人项目沉淀成可检索、可交接、可续写的「个人公司」知识库，解决 AI 会话短暂、上下文丢失、多个 AI（Harness）协作时进度与决策无法延续的问题。建立 private 老板档案（经历/偏好/目标/约束）、private 公司空间（岗位职责/项目索引/任务快照/工作事件/交接记录）与 public 展示（主页 README+个人网站），并为项目写入跨 Codex/Claude Code/WorkBuddy/DeepSeek 的统一协作与留痕规则。触发场景：「对我的 GitHub 使用 BossAndCompany」、初始化个人公司/知识库、项目登记与盘点、跨 AI 交接与接手、工作汇报与总结、AI 协作留痕、多 Harness 共处、上下文持久化、个人品牌主页与网站部署、活动白名单投影、自动化开关管理。英文可匹配：AI agent context management, personal knowledge base, multi-agent handover, project journal, cross-harness collaboration, developer portfolio。不适用于：任务调度/多 agent 并行执行（用运行时编排工具）、实时聊天、凭证管理。
-version: 6
+description: 两大用途：①让小白一句话就在 GitHub 拥有个人名片品牌——自动生成主页 README 与个人网站并部署，没有简历也能问答式从零打造作品集/简历页；②把项目沉淀成可检索可交接的「个人公司」知识库，解决 AI 会话断片、多个 AI（Harness）协作进度丢失。产出 private 档案/公司空间与 public 展示，写入跨 Codex/Claude Code/WorkBuddy/DeepSeek 的协作留痕规则。触发：「帮我做 GitHub 名片/主页/个人网站/作品集」「让别人搜到我」「没简历帮我做介绍页」「对我的 GitHub 使用 BossAndCompany」、初始化品牌/知识库、项目登记、跨 AI 交接接手、汇报、协作留痕、多 Harness、活动投影。英文：GitHub profile, personal website, portfolio, personal branding, AI context management, knowledge base, handover. 不适用于：并发任务调度、实时聊天、凭证管理。
+version: 7
 agent_created: true
 ---
 
 # BossAndCompany
 
-> 一句话：**给 AI 用的长期记忆 + 团队协作协议**，让你的项目在换个会话、换个 AI 之后仍能接得上。
+> 两大核心价值：**①让任何人一句话拥有 GitHub 个人名片品牌**（主页 + 网站，零基础可用）；**②给 AI 用的长期记忆 + 协作协议**，让项目在换个会话、换个 AI 后仍能接得上。
 
 支持 Codex、Claude Code、WorkBuddy 和有适当工具的 DeepSeek 宿主。共用资料、流程和事件格式，按宿主加载规则。先读 [平台适配](references/platforms.md) 中当前环境对应部分；术语含义以 [术语契约](references/glossary.md) 为准；没有终端/文件/GitHub 工具时输出可交接材料和能力缺口，不假装执行远端操作。
 
 ## 何时使用 / 何时不用
 
-- **该用**：想让 AI 记住"我是谁、项目做到哪、决定为什么这么定、东西在哪、下一步怎么接"；需要多个 AI 工具协作且进度不打架；需要跨会话交接、阶段汇报、个人成果展示。
+- **该用（个人品牌）**：想快速拥有 GitHub 个人主页 + 个人网站来展示自己、做作品集/简历页、让别人搜到自己；即使没有简历、不懂 GitHub，也能通过问答从零开始。
+- **该用（协作记忆）**：想让 AI 记住"我是谁、项目做到哪、决定为什么这么定、东西在哪、下一步怎么接"；多个 AI 工具协作且进度不打架；跨会话交接、阶段汇报。
 - **不该用**：需要真正调度多个 agent 并发跑任务、开"会议"做并行推理（这是运行时编排工具的事）；只是单次问答；管理密钥和凭证。本 skill 是**协议 + 离线脚本**，不启动后台进程、不替代宿主工具。
 
 ## 检索关键词
 
-`AI 上下文管理` `个人知识库` `项目交接` `跨 AI 协作` `多 Harness` `工作留痕` `任务快照` `个人公司` `GitHub 主页` `个人网站` `简历档案` `活动投影` `agent context` `handover` `knowledge base` `portfolio` `multi-agent` `journal`
+`GitHub 个人名片` `个人主页` `个人网站` `作品集` `简历页` `个人品牌` `小白建站` `AI 上下文管理` `个人知识库` `项目交接` `跨 AI 协作` `多 Harness` `工作留痕` `任务快照` `个人公司` `简历档案` `活动投影` `GitHub profile` `personal website` `portfolio` `personal branding` `agent context` `handover` `knowledge base` `multi-agent` `journal`
 
 ## 模式
 
-- 用户首次说“对我的 GitHub 使用这个 skill”：读取 [初始化流程](references/initialization.md)，完成已有仓库检查、资料归档、主页和网站发布、项目规则绑定。
+- **小白要个人名片/主页/网站/作品集**（包括"没有简历，帮我从零做"）：读取 [小白品牌名片快速路径](references/brand-card.md)，一句话触发后以最少提问收集信息、自动生成主页 README + 网站并部署，最后给两个能打开的链接。这是与「个人公司」并列的核心入口，不要求用户先懂 GitHub 或 Harness。
+- 用户说“对我的 GitHub 使用这个 skill”：读取 [初始化流程](references/initialization.md)，完成已有仓库检查、资料归档、主页和网站发布、项目规则绑定。已在名片路径中的用户无需重做两问。
 - 已初始化项目工作：先按 [主动性开关](references/automation.md) 运行 `auto.py session-start` 读取最新私有缓存与 `CONTEXT.md`，再读取项目规则与 `.boss-and-company/company.json`，按 [留痕协议](references/work-protocol.md) 登记、交接、汇报和补传；交接与接手按其中的「交接与接手」章节及 [术语契约](references/glossary.md) 执行，不必重读全部日志。
 - 更新主动性开关 / 配置自动同步：读取 [主动性开关](references/automation.md) 与 [hooks 说明](assets/hooks/README.md)；开关放在 private Boss 档案，任何写入都需用户明确开启。
 - 更新老板信息/导入简历：读取 [资料规则](references/passport.md)，保留来源并合并事实；没有独立简历仓库。
@@ -61,7 +63,7 @@ agent_created: true
 - 会话开始：只读刷新到 gitignored `.boss-and-company/cache/`，生成给接手 Agent 先读的 `CONTEXT.md`；缓存带远端 SHA，失败保留旧缓存并标 `stale`，**不写远端、不阻断会话、不伪称已同步**。
 - 提交后：按开关把最近一次 commit 记成 private 事件（ID 与 commit 绑定，重放幂等；只含元数据，验证状态明确 `not-run`）；默认只落本地 outbox，需 `sync_after_record` 才上传并远端回读，且只同步本次事件。
 - "最近在忙"投影：只有 `activity_public` 开启、事件显式 `visibility: public` 且项目在规范化档案中为 public/verified 时才生成；输出严格白名单字段并做自检。**脚本必须显式 `--output`，绝不自动写网站仓库或改现有页面。**
-- 版本说明：本 skill 包为 `version: 6`（优化 frontmatter description、中英文触发词与「何时用/不用」边界，提升被 AI 检索命中的概率；v5 新增 [术语契约](references/glossary.md) 与交接/读历史纪律；基础格式始终未变）；仓库绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（基础格式未变，已绑定项目无需重新 bind）。`automation_version: 1` 只管开关文件；`classification_version: 1` 只管 `PROJECT.json` 里可选的项目分类对象。
+- 版本说明：本 skill 包为 `version: 7`（新增 [小白品牌名片快速路径](references/brand-card.md)，把「让小白一句话拥有 GitHub 名片品牌」提升为与「AI 上下文管理」并列的核心目标；v6 优化检索可发现性；v5 新增 [术语契约](references/glossary.md) 与交接/读历史纪律；基础格式始终未变）；仓库绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（基础格式未变，已绑定项目无需重新 bind）。`automation_version: 1` 只管开关文件；`classification_version: 1` 只管 `PROJECT.json` 里可选的项目分类对象。
 - 项目分类（v4 新增）：协调者可经只读 GitHub 元数据为 `PROJECT.json` 追加可选的 `classification` 对象，字段由 `scripts/classification.py` 定义并校验，含网站展示形态（`public-source`/`source-private`/`none`）、是否 fork、活跃度分层、星数与最近推送时间。分类是独立可选层，基础 `schema_version` 不变；公开投影仍只输出原本的白名单字段，分类信息只留在 private 公司空间。主页 public 项目排序规则：星数降序、同星数按最近推送时间降序。
 
 ## 首次初始化主要两问

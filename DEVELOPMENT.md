@@ -1,8 +1,8 @@
 ﻿# BossAndCompany — 开发与交接说明
 
-**跨 AI 平台的上下文管理 skill：把 GitHub 沉淀成可检索、可交接、可续写的「个人公司」。** 本文件是产品目标、已确认决定与实现边界的权威来源，供开发与接手 AI 阅读。技能入口见 [SKILL.md](boss-and-company/SKILL.md)，面向使用者的概览见 [README.md](README.md)。
+**跨 AI 平台的 skill，两大并列核心目标：①让小白一句话拥有 GitHub 个人名片品牌（主页 + 网站）；②把项目沉淀成可检索、可交接的「个人公司」上下文。** 本文件是产品目标、已确认决定与实现边界的权威来源，供开发与接手 AI 阅读。技能入口见 [SKILL.md](boss-and-company/SKILL.md)，使用者概览见 [README.md](README.md)，小白名片流程见 [brand-card.md](boss-and-company/references/brand-card.md)。
 
-关键词：`AI 上下文管理` `个人知识库` `跨 AI 协作` `多 Harness` `项目交接` `agent context` `handover` `knowledge base`
+关键词：`GitHub 个人名片` `个人网站` `作品集` `个人品牌` `AI 上下文管理` `跨 AI 协作` `多 Harness` `项目交接` `GitHub profile` `portfolio` `agent context` `handover`
 
 > 给接手开发的 AI：先读本 README，理解目标、用户已经确认的决定和当前实现边界，再按任务读取 SKILL.md、references 和脚本。不要把规划写成已实现能力，也不要在开发 skill 时顺手初始化用户的 GitHub。
 
@@ -32,6 +32,7 @@ BossAndCompany 是一个跨 AI 平台的 skill。用户首次主动调用后，a
 12. 支持 Claude Code、Codex、WorkBuddy，以及 DeepSeek 所在的实际 agent/工具环境。
 13. 主动性由用户级开关控制，默认**只读刷新开、所有写入关**：接入 GitHub 后自动读取并同步 Boss 档案与 Company_Workspace 最新信息；代码提交后是否自动维护公司空间记录由用户单独开启。开关跨 Harness 生效，本地只能调得更保守。
 14. 个人网站作为对外品牌长期维护。后期"最近在忙…"可视化模块只消费严格白名单的公开活动投影，不直接读取 private 公司空间或事件正文；网站仓库的现有内容（含已有简历页面与文件）不因本 skill 自动改动。
+15. 「让小白一句话就在 GitHub 拥有个人名片品牌（主页 + 网站）」是与「AI 上下文管理」**并列的核心目标**。小白路径支持无简历、无项目、不懂 GitHub 的用户通过几轮问答从零开始（见 brand-card.md）；默认只做名片，不擅自建一堆 private 仓库或开启自动写入。名片路径复用现有 render 模板、两问和发布流程，不另起一套系统。
 
 ## 3. GitHub 公司的结构
 
@@ -168,7 +169,7 @@ BossAndCompany 将**项目身份**定义为唯一 `owner/repo`，将**工作区�
 - 刷新缓存带 `boss_sha` / `company_sha` 和 `stale` 标记；失败保留旧缓存、返回原因、不阻断会话、不伪称同步。缓存目录由 bind 写进 .gitignore，`cache_guard` 二次校验。
 - 提交事件只含元数据（SHA、时间、主题首行、分支），**不含 diff、代码、作者邮箱、本地路径**；公司仓库写入前核验 private，回读一致才标 synced。
 - "最近在忙"投影需 `activity_public` 开启 + 事件显式 `visibility: public` + 项目 public/verified，输出字段严格限定 `date/project/title/stage/url` 并做自检。**必须显式 `--output`，脚本绝不自动写网站仓库或改现有页面**；把投影同步到网站是用户后续另行授权的动作。
-- 版本区分：`SKILL.md` 包版本为 `6`（优化检索可发现性：description 触发词、中英文关键词、何时用/不用边界；v5 新增术语契约与交接/读历史纪律；基础格式未变）；绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（格式未变，已绑定项目无需重新 bind）；开关文件另有 `automation_version: 1`。
+- 版本区分：`SKILL.md` 包版本为 `7`（新增小白品牌名片快速路径，并列为两大核心目标之一；v6 优化检索可发现性；v5 新增术语契约与交接/读历史纪律；基础格式未变）；绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（格式未变，已绑定项目无需重新 bind）；开关文件另有 `automation_version: 1`。
 
 ## 8. 跨平台兼容目标与安装
 
@@ -200,6 +201,7 @@ BossAndCompany/
     SKILL.md                        agent 执行入口
     agents/openai.yaml              Codex 展示元数据
     references/
+      brand-card.md                 小白品牌名片快速路径（一句话触发/问答收集/自动生成部署）
       initialization.md             初始化、两问与恢复
       passport.md                   档案、简历导入与用户级开关
       platforms.md                  平台适配及能力边界
@@ -278,7 +280,7 @@ python -B scripts/package_skill.py --output dist/boss-and-company.zip
 
 打包脚本不覆盖已有 ZIP；重建时先检查并移走旧产物，或指定新的输出文件名。不要删除源码以解决打包冲突。
 
-截至本轮开发交付，本地测试覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测、CLI 流程，以及新增的开关默认/降权、只读刷新与 stale 降级、提交事件幂等、公开投影白名单自检。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 6` 与 `agent_created: true`，绑定数据 `skill_version` 仍为 `2`。这些仍不代表四个真实客户端的 hook 已完成端到端验收。没有实际证据时，不宣称后台自动同步已在所有宿主流行或网站模块已经上线。
+截至本轮开发交付，本地测试覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测、CLI 流程，以及新增的开关默认/降权、只读刷新与 stale 降级、提交事件幂等、公开投影白名单自检。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 7` 与 `agent_created: true`，绑定数据 `skill_version` 仍为 `2`。这些仍不代表四个真实客户端的 hook 已完成端到端验收。没有实际证据时，不宣称后台自动同步已在所有宿主流行或网站模块已经上线。
 
 ## 11. 接手 AI 的下一步与验收标准
 
