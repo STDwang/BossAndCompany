@@ -1,13 +1,24 @@
 ---
 name: boss-and-company
-description: 将用户的 GitHub 初始化为个人公司，整理老板档案、公司空间与岗位，创建并部署个人网站，复用主页及项目，为后续项目写入默认协作和留痕规则。接入 GitHub 后按用户开关自动同步 Boss 与公司空间最新状态，提交后按开关维护公司空间记录，并生成严格公开的“最近在忙”数据。适用于“对我的 GitHub 使用 BossAndCompany”、公司初始化、项目登记、汇报、多 Harness 共处、自动化开关和跨 AI 交接。
-version: 5
+description: 把 GitHub 和个人项目沉淀成可检索、可交接、可续写的「个人公司」知识库，解决 AI 会话短暂、上下文丢失、多个 AI（Harness）协作时进度与决策无法延续的问题。建立 private 老板档案（经历/偏好/目标/约束）、private 公司空间（岗位职责/项目索引/任务快照/工作事件/交接记录）与 public 展示（主页 README+个人网站），并为项目写入跨 Codex/Claude Code/WorkBuddy/DeepSeek 的统一协作与留痕规则。触发场景：「对我的 GitHub 使用 BossAndCompany」、初始化个人公司/知识库、项目登记与盘点、跨 AI 交接与接手、工作汇报与总结、AI 协作留痕、多 Harness 共处、上下文持久化、个人品牌主页与网站部署、活动白名单投影、自动化开关管理。英文可匹配：AI agent context management, personal knowledge base, multi-agent handover, project journal, cross-harness collaboration, developer portfolio。不适用于：任务调度/多 agent 并行执行（用运行时编排工具）、实时聊天、凭证管理。
+version: 6
 agent_created: true
 ---
 
 # BossAndCompany
 
+> 一句话：**给 AI 用的长期记忆 + 团队协作协议**，让你的项目在换个会话、换个 AI 之后仍能接得上。
+
 支持 Codex、Claude Code、WorkBuddy 和有适当工具的 DeepSeek 宿主。共用资料、流程和事件格式，按宿主加载规则。先读 [平台适配](references/platforms.md) 中当前环境对应部分；术语含义以 [术语契约](references/glossary.md) 为准；没有终端/文件/GitHub 工具时输出可交接材料和能力缺口，不假装执行远端操作。
+
+## 何时使用 / 何时不用
+
+- **该用**：想让 AI 记住"我是谁、项目做到哪、决定为什么这么定、东西在哪、下一步怎么接"；需要多个 AI 工具协作且进度不打架；需要跨会话交接、阶段汇报、个人成果展示。
+- **不该用**：需要真正调度多个 agent 并发跑任务、开"会议"做并行推理（这是运行时编排工具的事）；只是单次问答；管理密钥和凭证。本 skill 是**协议 + 离线脚本**，不启动后台进程、不替代宿主工具。
+
+## 检索关键词
+
+`AI 上下文管理` `个人知识库` `项目交接` `跨 AI 协作` `多 Harness` `工作留痕` `任务快照` `个人公司` `GitHub 主页` `个人网站` `简历档案` `活动投影` `agent context` `handover` `knowledge base` `portfolio` `multi-agent` `journal`
 
 ## 模式
 
@@ -50,7 +61,7 @@ agent_created: true
 - 会话开始：只读刷新到 gitignored `.boss-and-company/cache/`，生成给接手 Agent 先读的 `CONTEXT.md`；缓存带远端 SHA，失败保留旧缓存并标 `stale`，**不写远端、不阻断会话、不伪称已同步**。
 - 提交后：按开关把最近一次 commit 记成 private 事件（ID 与 commit 绑定，重放幂等；只含元数据，验证状态明确 `not-run`）；默认只落本地 outbox，需 `sync_after_record` 才上传并远端回读，且只同步本次事件。
 - "最近在忙"投影：只有 `activity_public` 开启、事件显式 `visibility: public` 且项目在规范化档案中为 public/verified 时才生成；输出严格白名单字段并做自检。**脚本必须显式 `--output`，绝不自动写网站仓库或改现有页面。**
-- 版本说明：本 skill 包为 `version: 5`（新增 [术语契约](references/glossary.md) 与交接/读历史纪律，基础格式未变）；仓库绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（基础格式未变，已绑定项目无需重新 bind）。`automation_version: 1` 只管开关文件；`classification_version: 1` 只管 `PROJECT.json` 里可选的项目分类对象。
+- 版本说明：本 skill 包为 `version: 6`（优化 frontmatter description、中英文触发词与「何时用/不用」边界，提升被 AI 检索命中的概率；v5 新增 [术语契约](references/glossary.md) 与交接/读历史纪律；基础格式始终未变）；仓库绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（基础格式未变，已绑定项目无需重新 bind）。`automation_version: 1` 只管开关文件；`classification_version: 1` 只管 `PROJECT.json` 里可选的项目分类对象。
 - 项目分类（v4 新增）：协调者可经只读 GitHub 元数据为 `PROJECT.json` 追加可选的 `classification` 对象，字段由 `scripts/classification.py` 定义并校验，含网站展示形态（`public-source`/`source-private`/`none`）、是否 fork、活跃度分层、星数与最近推送时间。分类是独立可选层，基础 `schema_version` 不变；公开投影仍只输出原本的白名单字段，分类信息只留在 private 公司空间。主页 public 项目排序规则：星数降序、同星数按最近推送时间降序。
 
 ## 首次初始化主要两问

@@ -1,4 +1,8 @@
-﻿# BossAndCompany
+﻿# BossAndCompany — 开发与交接说明
+
+**跨 AI 平台的上下文管理 skill：把 GitHub 沉淀成可检索、可交接、可续写的「个人公司」。** 本文件是产品目标、已确认决定与实现边界的权威来源，供开发与接手 AI 阅读。技能入口见 [SKILL.md](boss-and-company/SKILL.md)，面向使用者的概览见 [README.md](README.md)。
+
+关键词：`AI 上下文管理` `个人知识库` `跨 AI 协作` `多 Harness` `项目交接` `agent context` `handover` `knowledge base`
 
 > 给接手开发的 AI：先读本 README，理解目标、用户已经确认的决定和当前实现边界，再按任务读取 SKILL.md、references 和脚本。不要把规划写成已实现能力，也不要在开发 skill 时顺手初始化用户的 GitHub。
 
@@ -164,7 +168,7 @@ BossAndCompany 将**项目身份**定义为唯一 `owner/repo`，将**工作区�
 - 刷新缓存带 `boss_sha` / `company_sha` 和 `stale` 标记；失败保留旧缓存、返回原因、不阻断会话、不伪称同步。缓存目录由 bind 写进 .gitignore，`cache_guard` 二次校验。
 - 提交事件只含元数据（SHA、时间、主题首行、分支），**不含 diff、代码、作者邮箱、本地路径**；公司仓库写入前核验 private，回读一致才标 synced。
 - "最近在忙"投影需 `activity_public` 开启 + 事件显式 `visibility: public` + 项目 public/verified，输出字段严格限定 `date/project/title/stage/url` 并做自检。**必须显式 `--output`，脚本绝不自动写网站仓库或改现有页面**；把投影同步到网站是用户后续另行授权的动作。
-- 版本区分：`SKILL.md` 包版本为 `5`（新增术语契约与交接/读历史纪律，基础格式未变）；绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（格式未变，已绑定项目无需重新 bind）；开关文件另有 `automation_version: 1`。
+- 版本区分：`SKILL.md` 包版本为 `6`（优化检索可发现性：description 触发词、中英文关键词、何时用/不用边界；v5 新增术语契约与交接/读历史纪律；基础格式未变）；绑定数据 `company.json` / `local.json` 的 `skill_version` 仍为 `2`（格式未变，已绑定项目无需重新 bind）；开关文件另有 `automation_version: 1`。
 
 ## 8. 跨平台兼容目标与安装
 
@@ -274,7 +278,7 @@ python -B scripts/package_skill.py --output dist/boss-and-company.zip
 
 打包脚本不覆盖已有 ZIP；重建时先检查并移走旧产物，或指定新的输出文件名。不要删除源码以解决打包冲突。
 
-截至本轮开发交付，本地测试覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测、CLI 流程，以及新增的开关默认/降权、只读刷新与 stale 降级、提交事件幂等、公开投影白名单自检。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 5` 与 `agent_created: true`，绑定数据 `skill_version` 仍为 `2`。这些仍不代表四个真实客户端的 hook 已完成端到端验收。没有实际证据时，不宣称后台自动同步已在所有宿主流行或网站模块已经上线。
+截至本轮开发交付，本地测试覆盖两问、可见性、规则保留、跨平台安装、公开/私密分离、项目状态过滤、事件幂等、多 checkout/多 Harness 身份隔离、模拟 gh 上传与回读、冲突/篡改检测、CLI 流程，以及新增的开关默认/降权、只读刷新与 stale 降级、提交事件幂等、公开投影白名单自检。分发包使用允许列表，不收隐藏文件、缓存和符号链接；`SKILL.md` 含 `version: 6` 与 `agent_created: true`，绑定数据 `skill_version` 仍为 `2`。这些仍不代表四个真实客户端的 hook 已完成端到端验收。没有实际证据时，不宣称后台自动同步已在所有宿主流行或网站模块已经上线。
 
 ## 11. 接手 AI 的下一步与验收标准
 

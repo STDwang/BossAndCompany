@@ -1,8 +1,21 @@
 # BossAndCompany
 
+**AI agent context management · personal knowledge base · cross-harness handover — a persistent "personal company" for your GitHub projects.**
+
 > 一个跨 AI 平台的 Agent Skill：把你的 GitHub 整理成一座可持续积累上下文的「个人公司」，让后来的你——或任何一个接手的 AI——快速搞清「你是谁、在做什么、东西在哪、下一步怎么接」。
 
 人类是 Boss，AI 按编码 / 美术 / 策划等岗位参与。公司只是组织协作的比喻，不要求模拟雇佣关系，也不会用「老板偏好」掩盖事实或失败。
+
+[![skill version](https://img.shields.io/badge/skill-v6-blue)](boss-and-company/SKILL.md) ![MIT](LICENSE) ![Python 3.10+](README.md) ![Codex · Claude Code · WorkBuddy · DeepSeek](README.md)
+
+<details>
+<summary>关键词 / keywords（供人和 AI 检索）</summary>
+
+`AI 上下文管理` `个人知识库` `项目交接` `跨 AI 协作` `多 Harness` `工作留痕` `任务快照` `个人公司` `GitHub 主页` `个人网站` `简历档案` `活动投影` `agent context management` `personal knowledge base` `multi-agent handover` `project journal` `cross-harness collaboration` `developer portfolio` `AI memory` `onboarding`
+
+</details>
+
+**适合谁**：独立开发者、学习者、用多个 AI 编码助手（Claude Code / Codex / WorkBuddy / DeepSeek）的人，以及任何"换个会话就断片、换个 AI 就重来"的场景。
 
 ## 它解决什么问题
 
@@ -22,6 +35,8 @@ AI 会话是短暂的，项目上下文总会丢失。BossAndCompany 把分散�
 - **隐私优先**：私有仓库映射、本地路径、checkout 身份只存 gitignored 文件；公开投影走严格白名单并自检。
 
 > ⚠️ 这是**协议 + 离线辅助脚本**，不是托管服务。仓库创建、网站部署、文档语义解析仍由宿主 Agent 结合可用工具执行；没有独立后台守护进程，也不保证未加载上下文的会话会自动留痕。
+
+**不解决问题**：不调度多个 agent 并发执行任务、不开并行推理"会议"（那是运行时编排工具，如 AgentNave 的职责）；不管理凭证密钥；不做单次问答。想了解与运行时编排工具的分工，见 [DEVELOPMENT.md](DEVELOPMENT.md)。
 
 ## 安装
 

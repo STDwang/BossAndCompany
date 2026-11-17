@@ -13,7 +13,7 @@ metadata = dict(line.split(": ", 1) for line in match[1].splitlines() if ": " in
 assert metadata.get("name") == skill.name, "Invalid skill frontmatter/name"
 # Skill package version is independent of the bound-data skill_version (still 2):
 # company.json / local.json did not change, so existing checkouts need no rebind.
-assert metadata.get("version") == "5", "Missing skill version"
+assert metadata.get("version") == "6", "Missing skill version"
 assert metadata.get("agent_created") == "true", "Missing agent_created flag"
 assert len(metadata.get("description", "")) <= 1024, "Description too long"
 for path in [skill / "SKILL.md", *(skill / "references").glob("*.md")]:

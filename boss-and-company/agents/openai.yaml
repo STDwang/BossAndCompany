@@ -1,4 +1,4 @@
 interface:
-  display_name: "BossAndCompany"
-  short_description: "将 GitHub 组织为个人公司，管理老板档案、岗位协作、项目留痕和网站展示"
+  display_name: "BossAndCompany (AI 上下文管理与项目交接)"
+  short_description: "把 GitHub/项目变成可检索可交接的个人公司知识库：AI 上下文管理、老板档案、跨 AI 协作留痕、项目交接接手、汇报、个人主页与网站部署、多 Harness 共处。适用于上下文丢失/换个 AI 就重来/需要长期记忆的场景。Agent context, handover, knowledge base, portfolio."
   default_prompt: "使用 $boss-and-company，对我的 GitHub 初始化个人公司，复用已有成果并设置后续项目的默认留痕规则。"
